@@ -36,7 +36,10 @@ $("#add-train-btn").on("click", function () {
     };
 
     // upload train data to firebase
-    database.ref().push(newTrain);
+    // database.ref().push(newTrain);
+
+    // set the new train object to firebase?
+    database.ref().set({newTrain});
 
     // log everything
     console.log(newTrain.name);
