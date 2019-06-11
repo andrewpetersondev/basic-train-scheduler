@@ -16,10 +16,10 @@ firebase.initializeApp(firebaseConfig);
 var database = firebase.database();
 
 // // Initial Values
-// var trainName;
-// var destinationInput;
-// var firstTrainTimeInput;
-// var frequencyInput;
+// var name;
+// var destination;
+// var start;
+// var frequency;
 
 function clearForm() {
     $("#train-name-input").val("");
@@ -28,74 +28,72 @@ function clearForm() {
     $("#frequency-input").val("");
 };
 
-// button to add child train
+// button to add train
 $("#add-train-btn").on("click", function (event) {
 
     // prevent default because it is a form
     event.preventDefault();
 
     // grab user input 
-    var trainName = $("#train-name-input").val().trim();
-    var destinationInput = $("#destination-input").val().trim();
-    var firstTrainTimeInput = $("#start-input").val().trim();
-    var frequencyInput = $("#frequency-input").val().trim();
+    var name = $("#train-name-input").val().trim();
+    var destination = $("#destination-input").val().trim();
+    var start = $("#start-input").val().trim();
+    var frequency = $("#frequency-input").val().trim();
 
     // create local temporary object for holding data
     var newTrain = {
-        name: trainName,
-        destination: destinationInput,
-        start: firstTrainTimeInput,
-        frequency: frequencyInput,
+        name: name,
+        destination: destination,
+        start: start,
+        frequency: frequency,
         dateAdded: firebase.database.ServerValue.TIMESTAMP
     };
+
+    // log everything
+    console.log(newTrain);
 
     // upload train data to firebase
     database.ref().push(newTrain);
 
     // log everything
     // console.log(newTrain);
-    // console.log(newTrain.name);
-    // console.log(newTrain.destination);
-    // console.log(newTrain.start);
-    // console.log(newTrain.frequency);
 
     clearForm();
 
 });
 
-// watches firebase for .on child added
-database.ref().on("child_added", function (snapshot) {
+// firebase event for adding trains and a dynamic row in the html when user enters a new train
+// firebase docs refer to data returned as childSnapshot
+// in this case the name doesn't matter but use childSnapshot anyways
+// all data returned from firebase is in the form of a string
+database.ref().on("child_added", function (childSnapshot) {
 
-    // store snapshot value in variable for convenience
-    var sv = snapshot.val();
+    // data returned from firebase
+    // console.log(childSnapshot);
+
+    // firebase documentation says all data stored is accessed in val() method
+    console.log(childSnapshot.val());
 
     // store everything in variables
-    var train = sv.name;
-    var destination = sv.destination;
-    var firstTrainTime = sv.start;
-    var frequency = sv.frequency;
 
-    // log the snapshot
-    console.log(snapshot);
-    console.log(sv);
-    console.log("NAME = " + train);
-    console.log("DESTINATION = " + destination);
-    console.log("START = " + firstTrainTime);
-    console.log("FREQUENCY = " + frequency);
+    var tName = childSnapshot.val().name;
+    // console.log("NAME = " + tName);
 
-    // moment js time calculations
-    // we are using date math for this project so it is important to remember that the moment object in Moment.js is mutable. This means that operations like add, subtract, or set change the original moment object.
-    // if we perform mutable calculations for date math objects we should clone them first
+    var tDestination = childSnapshot.val().destination;
+    // console.log("DESTINATION = " + tDestination);
 
-    // logic from train example
-    var tFrequency = frequency;
+    var tStart = childSnapshot.val().start;
+    // console.log("START = " + tStart);
+
+    var tFrequency = childSnapshot.val().frequency;
+    // console.log("FREQUENCY = " + tFrequency);
 
     // first train time is pushed back 1 year to make sure it comes before the current time
-    var firstTrainTimeConverted = moment(firstTrainTime, "HH:mm").subtract(1, "years");
+    var firstTrainTimeConverted = moment(tStart, "HH:mm").subtract(1, "years");
 
     // current time
     var currentTime = moment();
-    console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+    // console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
 
     // Difference between the times
     var diffTime = moment().diff(moment(firstTrainTimeConverted), "minutes");
@@ -113,12 +111,14 @@ database.ref().on("child_added", function (snapshot) {
     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
     console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
 
+    var nextArrival = moment(nextTrain).format("HH:mm A");
+
     // display to html with dynamic rows
     var newRow = $("<tr>").append(
-        $("<td>").text(train),
-        $("<td>").text(destination),
-        $("<td>").text(frequency),
-        $("<td>").text(nextTrain),
+        $("<td>").text(tName),
+        $("<td>").text(tDestination),
+        $("<td>").text(tFrequency),
+        $("<td>").text(nextArrival),
         $("<td>").text(tMinutesTillTrain)
     );
 
@@ -128,3 +128,4 @@ database.ref().on("child_added", function (snapshot) {
 }, function (errorObject) {
     console.log("Errors handled: " + errorObject.code);
 });
+
