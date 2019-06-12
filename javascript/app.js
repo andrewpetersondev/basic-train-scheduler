@@ -118,36 +118,39 @@ database.ref().on("child_added", function (childSnapshot) {
         tArrival = trainTime.format("HH:mm A");
         tMinutes = trainTime.diff(moment(), "minutes");
     } else {
-
+        var diffTime = moment().diff(trainTime, "minutes");
+        var tRemainder = diffTime % tFrequency;
+        tMinutes = tFrequency - tRemainder;
+        tArrival = moment().add(tMinutes, "m").format("hh:mm A");
     }
 
 
     // ======================================================================================================================================================
 
-    // first train time is pushed back 1 year to make sure it comes before the current time
-    var firstTrainTimeConverted = moment(tStart, "HH:mm").subtract(1, "years");
-    console.log(firstTrainTimeConverted);
+    // // first train time is pushed back 1 year to make sure it comes before the current time
+    // var firstTrainTimeConverted = moment(tStart, "HH:mm").subtract(1, "years");
+    // console.log(firstTrainTimeConverted);
 
-    // var currentTime = moment();
-    // console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+    // // var currentTime = moment();
+    // // console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
 
-    // Difference between the times
-    var diffTime = moment().diff(moment(firstTrainTimeConverted), "minutes");
-    console.log("DIFFERENCE IN TIME: " + diffTime);
+    // // Difference between the times
+    // var diffTime = moment().diff(moment(firstTrainTimeConverted), "minutes");
+    // console.log("DIFFERENCE IN TIME: " + diffTime);
 
-    // Time apart (remainder)
-    var tRemainder = diffTime % tFrequency;
-    console.log(tRemainder);
+    // // Time apart (remainder)
+    // var tRemainder = diffTime % tFrequency;
+    // console.log(tRemainder);
 
-    // Minute Until Train
-    var tMinutesTillTrain = tFrequency - tRemainder;
-    console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+    // // Minute Until Train
+    // var tMinutesTillTrain = tFrequency - tRemainder;
+    // console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
 
-    // Next Train
-    var nextTrain = moment().add(tMinutesTillTrain, "minutes");
-    console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
+    // // Next Train
+    // var nextTrain = moment().add(tMinutesTillTrain, "minutes");
+    // console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
 
-    var nextArrival = moment(nextTrain).format("HH:mm A");
+    // var nextArrival = moment(nextTrain).format("HH:mm A");
 
     // ======================================================================================================================================================
 
@@ -156,8 +159,8 @@ database.ref().on("child_added", function (childSnapshot) {
         $("<td>").text(tName),
         $("<td>").text(tDestination),
         $("<td>").text(tFrequency),
-        $("<td>").text(nextArrival),
-        $("<td>").text(tMinutesTillTrain)
+        $("<td>").text(tArrival),
+        $("<td>").text(tMinutes)
     );
 
     $("#train-table > tbody").append(newRow);
