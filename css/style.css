@@ -1,0 +1,13 @@
+/* body {
+
+} */
+
+.jumbotron {
+    background-color: black;
+    color: white;
+    text-align: center;
+}
+
+#add-train-btn {
+    float: right;
+}
